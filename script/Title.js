@@ -6,8 +6,8 @@ var title = (function() {
 	var mouseX, mouseY;
 
 	// Button status
-	var gameStart;
-	var moreInfo;
+	var gameStartMouse, moreInfoMouse;
+	var gameStartKey, moreInfoKey;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -22,8 +22,10 @@ var title = (function() {
 	}
 
 	function reset() {
-		gameStart = 0;
-		moreInfo = 0;
+		gameStartMouse = 0;
+		moreInfoMouse = 0;
+		gameStartKey = 0;
+		moreInfoKey = 0;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,21 +39,43 @@ var title = (function() {
 		mouseY = y;
 		
 		// Check if mouse on the "start" button
-		if(x >= 0 && x < 200 && y > 470 && y < 600) {
-			gameStart = 1;
+		if(x >= 10 && x < 200 && y > 470 && y < 590) {
+			moreInfoMouse = 1;
 		} else {
-			gameStart = 0;
+			moreInfoMouse = 0;
 		}
 		
 		// Check if mouse on the "more info" button
-		if(x >= 200 && x < 400 && y > 470 && y < 600) {
-			moreInfo = 1;
+		if(x >= 200 && x < 390 && y > 470 && y < 590) {
+			gameStartMouse = 1;
 		} else {
-			moreInfo = 0;
+			gameStartMouse = 0;
 		}
 	}
 
 	function eventMouseClick(e) {
+		if(moreInfoMouse == 1) {
+			var info = window.open();
+			info.location = "MoreInfo.html";
+		}
+	}
+
+	function eventKeyUp(e) {
+		if(e.keyCode == 37) {
+			moreInfoKey = 0;
+		}
+		if(e.keyCode == 39) {
+			gameStartKey = 0;
+		}
+	}
+
+	function eventKeyDown(e) {
+		if(e.keyCode == 37) {
+			moreInfoKey = 1;
+		}
+		if(e.keyCode == 39) {
+			gameStartKey = 1;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -69,15 +93,15 @@ var title = (function() {
 		backContext.drawImage(img.title, 0, 40);
 
 		// Draw Buttons
-		if(gameStart == 0) {
-			backContext.drawImage(img.buttons, 0, 390, 200, 130, 0, 470, 200, 130);
-		} else {
-			backContext.drawImage(img.buttons, 200, 390, 200, 130, 0, 470, 200, 130);
-		}
-		if(moreInfo == 0) {
+		if(gameStartMouse == 0 && gameStartKey == 0) {
 			backContext.drawImage(img.buttons, 0, 260, 200, 130, 200, 470, 200, 130);
 		} else {
 			backContext.drawImage(img.buttons, 200, 260, 200, 130, 200, 470, 200, 130);
+		}
+		if(moreInfoMouse == 0 && moreInfoKey == 0) {
+			backContext.drawImage(img.buttons, 0, 390, 200, 130, 0, 470, 200, 130);
+		} else {
+			backContext.drawImage(img.buttons, 200, 390, 200, 130, 0, 470, 200, 130);
 		}
 	}
 
@@ -92,6 +116,9 @@ var title = (function() {
 		reset : reset,
 		draw : draw,
 
-		eventMouseMove : eventMouseMove
+		eventMouseMove : eventMouseMove,
+		eventMouseClick : eventMouseClick,
+		eventKeyUp : eventKeyUp,
+		eventKeyDown : eventKeyDown
 	};
 })();

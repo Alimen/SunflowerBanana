@@ -128,9 +128,27 @@ var resume = (function() {
 	}
 
 	function eventKeyUp(e) {
+		if(e.keyCode != 37 && e.keyCode != 39) {
+			return;
+		}
+
+		switch(state) {
+		case mainStates.title:
+			title.eventKeyUp(e);
+			break;
+		}
 	}
 
 	function eventKeyDown(e) {
+		if(e.keyCode != 37 && e.keyCode != 39) {
+			return;
+		}
+
+		switch(state) {
+		case mainStates.title:
+			title.eventKeyDown(e);
+			break;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
