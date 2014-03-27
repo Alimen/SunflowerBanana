@@ -25,6 +25,7 @@ var resume = (function() {
 	var imgTitle = new Image();
 	var imgButtons = new Image();
 	var imgFrame = new Image();
+	var imgAnswere = new Image();
 	var imgLoadingBar = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,7 +43,7 @@ var resume = (function() {
 		intro		: 5,
 		resetTitle	: 6,
 		title		: 7,
-		tutorial	: 8,
+		resetGame	: 8,
 		game		: 9
 	};
 	var state = mainStates.initial;
@@ -85,11 +86,19 @@ var resume = (function() {
 			state = mainStates.title;
 			break;
 		case mainStates.title:
-			title.draw();
+			res = title.draw();
 			flip();
+			if(res != mainStates.unknown) {
+				state = mainStates.resetGame;
+			}
+			break;
+		case mainStates.resetGame:
+			gameLogic.reset();
+			state = mainStates.game;
 			break;
 		case mainStates.game:
-			//drawBoard();
+			gameLogic.draw();
+			flip();
 			break;
 		}
 	}
@@ -116,6 +125,9 @@ var resume = (function() {
 		case mainStates.title:
 			title.eventMouseMove(mouseX, mouseY);
 			break;
+		case mainStates.game:
+			gameLogic.eventMouseMove(mouseX, mouseY);
+			break;
 		}
 	}
 
@@ -123,6 +135,9 @@ var resume = (function() {
 		switch(state) {
 		case mainStates.title:
 			title.eventMouseClick(e);
+			break;
+		case mainStates.game:
+			gameLogic.eventMouseClick(e);
 			break;
 		}
 	}
@@ -136,6 +151,9 @@ var resume = (function() {
 		case mainStates.title:
 			title.eventKeyUp(e);
 			break;
+		case mainStates.game:
+			gameLogic.eventKeyUp(e);
+			break;
 		}
 	}
 
@@ -147,6 +165,9 @@ var resume = (function() {
 		switch(state) {
 		case mainStates.title:
 			title.eventKeyDown(e);
+			break;
+		case mainStates.game:
+			gameLogic.eventKeyDown(e);
 			break;
 		}
 	}
@@ -223,7 +244,7 @@ var resume = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 33;
+	var itemsToLoad = 34;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -234,6 +255,8 @@ var resume = (function() {
 		imgButtons.onload = eventItemLoaded;
 		imgFrame.src = "image/Frame.png";
 		imgFrame.onload = eventItemLoaded;
+		imgAnswere.src = "image/Answere.png";
+		imgAnswere.onload = eventItemLoaded;
 
 		// Load banana & sunflower images
 		for(var i = 1; i <= 15; i++) {
@@ -267,6 +290,15 @@ var resume = (function() {
 		title.init(env, {
 			buttons : imgButtons,
 			title : imgTitle
+		}, backContext);
+
+		gameLogic.init(env, {
+			buttons : imgButtons,
+			title : imgTitle,
+			frame : imgFrame,
+			answere : imgAnswere,
+			bananas : imgBananas,
+			flowers : imgFlowers
 		}, backContext);
 	}
 

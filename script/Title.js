@@ -3,11 +3,11 @@ var title = (function() {
 	var backContext;
 	var img;
 	var env;
-	var mouseX, mouseY;
 
 	// Button status
 	var gameStartMouse, moreInfoMouse;
 	var gameStartKey, moreInfoKey;
+	var starting;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -26,6 +26,7 @@ var title = (function() {
 		moreInfoMouse = 0;
 		gameStartKey = 0;
 		moreInfoKey = 0;
+		starting = 0;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,9 +36,6 @@ var title = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function eventMouseMove(x, y) {
-		mouseX = x;
-		mouseY = y;
-		
 		// Check if mouse on the "start" button
 		if(x >= 10 && x < 200 && y > 470 && y < 590) {
 			moreInfoMouse = 1;
@@ -58,14 +56,20 @@ var title = (function() {
 			var info = window.open();
 			info.location = "MoreInfo.html";
 		}
+		if(gameStartMouse == 1) {
+			starting = 1;
+		}
 	}
 
 	function eventKeyUp(e) {
 		if(e.keyCode == 37) {
 			moreInfoKey = 0;
+			var info = window.open();
+			info.location = "MoreInfo.html";
 		}
 		if(e.keyCode == 39) {
 			gameStartKey = 0;
+			starting = 1;
 		}
 	}
 
@@ -102,6 +106,12 @@ var title = (function() {
 			backContext.drawImage(img.buttons, 0, 390, 200, 130, 0, 470, 200, 130);
 		} else {
 			backContext.drawImage(img.buttons, 200, 390, 200, 130, 0, 470, 200, 130);
+		}
+
+		if(starting == 1) {
+			return env.mainStates.resetGame;
+		} else {
+			return env.mainStates.unknown;
 		}
 	}
 
