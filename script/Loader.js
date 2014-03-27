@@ -99,7 +99,7 @@ var loader = (function() {
 		case 2:
 			// Fade-in game interface
 			backContext.globalAlpha = introT/40;
-			backContext.drawImage(img.title, 0, 0);
+			backContext.drawImage(img.title, 0, 40);
 			backContext.drawImage(img.buttons, 0, 390, 200, 130, 0, 470, 200, 130);
 			backContext.drawImage(img.buttons, 0, 260, 200, 130, 200, 470, 200, 130);
 			backContext.globalAlpha = 1;
@@ -112,7 +112,7 @@ var loader = (function() {
 		introT++;
 
 		if(introState == 3) {
-			return env.mainStates.resetTitile;
+			return env.mainStates.resetTitle;
 		} else {
 			return env.mainStates.unknown;
 		}

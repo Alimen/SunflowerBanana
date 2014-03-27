@@ -80,8 +80,13 @@ var resume = (function() {
 				state = mainStates.resetTitle;
 			}
 			break;
-		case mainStates.reset:
-			//reset();
+		case mainStates.resetTitle:
+			title.reset();
+			state = mainStates.title;
+			break;
+		case mainStates.title:
+			title.draw();
+			flip();
 			break;
 		case mainStates.game:
 			//drawBoard();
@@ -95,7 +100,38 @@ var resume = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	// Mouse position variables
+	var mouseX, mouseY;
 
+	function eventMouseMove(e) {			
+		if(e.offsetX || e.offsetX == 0) {
+			mouseX = e.offsetX;
+			mouseY = e.offsetY;
+		} else if(e.layerX || e.layerX == 0) {
+			mouseX = e.layerX - theCanvas.offsetLeft;
+			mouseY = e.layerY - theCanvas.offsetTop;
+		}
+
+		switch(state) {
+		case mainStates.title:
+			title.eventMouseMove(mouseX, mouseY);
+			break;
+		}
+	}
+
+	function eventMouseClick(e) {
+		switch(state) {
+		case mainStates.title:
+			title.eventMouseClick(e);
+			break;
+		}
+	}
+
+	function eventKeyUp(e) {
+	}
+
+	function eventKeyDown(e) {
+	}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -131,6 +167,12 @@ var resume = (function() {
 		backCanvas.width = screenWidth;
 		backCanvas.height = screenHeight;
 		backContext = backCanvas.getContext("2d");
+
+		// Setup events
+		theCanvas.addEventListener("mousemove", eventMouseMove, true);
+		theCanvas.addEventListener("click", eventMouseClick, true);
+		document.addEventListener("keyup", eventKeyUp, true);
+		document.addEventListener("keydown", eventKeyDown, true);
 
 		// Switch to next state
 		state = mainStates.preloading;
@@ -204,6 +246,10 @@ var resume = (function() {
 
 	function loadComplete() {
 		// Initialize sub modules
+		title.init(env, {
+			buttons : imgButtons,
+			title : imgTitle
+		}, backContext);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
