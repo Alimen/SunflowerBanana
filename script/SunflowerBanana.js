@@ -39,15 +39,17 @@ var resume = (function() {
 		initLoader	: 2,
 		loading		: 3,
 		loadComplete: 4,
-		showLogo	: 5,
+		intro		: 5,
 		resetTitle	: 6,
 		title		: 7,
-//		tutorial	: 8,
+		tutorial	: 8,
 		game		: 9
 	};
 	var state = mainStates.initial;
 
 	function timerTick() {
+		var res;
+
 		switch(state) {
 		case mainStates.initial:
 			init();
@@ -61,6 +63,22 @@ var resume = (function() {
 		case mainStates.loading:
 			loader.draw(Math.ceil(loadCount * 100 / itemsToLoad));
 			flip();
+			break;
+		case mainStates.loadComplete:
+			loadComplete();
+			loader.resetIntro({
+				bar : imgLoadingBar,
+				buttons : imgButtons,
+				title : imgTitle
+			});
+			state = mainStates.intro;
+			break;
+		case mainStates.intro:
+			res = loader.drawIntro();
+			flip();
+			if(res != mainStates.unknown) {
+				state = mainStates.resetTitle;
+			}
 			break;
 		case mainStates.reset:
 			//reset();
@@ -145,7 +163,7 @@ var resume = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 34;
+	var itemsToLoad = 33;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -182,6 +200,10 @@ var resume = (function() {
 		if(loadCount == itemsToLoad) {
 			state = mainStates.loadComplete;
 		}
+	}
+
+	function loadComplete() {
+		// Initialize sub modules
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
