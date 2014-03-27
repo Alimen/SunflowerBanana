@@ -16,14 +16,16 @@ var resume = (function() {
 	var backContext;
 
 	// Environmental variables
-	var screenWidth = 400;
-	var screenHeight = 600;
+	const screenWidth = 400;
+	const screenHeight = 600;
 
 	// Image resources
-	var imgAvatarP = new Image();
-	var imgAvatarN = new Image();
-	var imgBrickP = new Image();
-	var imgBrickN = new Image();
+	var imgBananas = new Array(15);
+	var imgFlowers = new Array(15);
+	var imgTitle = new Image();
+	var imgButtons = new Image();
+	var imgFrame = new Image();
+	var imgLoadingBar = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -33,11 +35,15 @@ var resume = (function() {
 
 	// State enumeration
 	const mainStates = {
-		unknown		: -1,
-		initial		: 0, 
-		loading		: 1,
-		reset		: 2,
-		game		: 3
+		preloading	: 1, 
+		initLoader	: 2,
+		loading		: 3,
+		loadComplete: 4,
+		showLogo	: 5,
+		resetTitle	: 6,
+		title		: 7,
+//		tutorial	: 8,
+		game		: 9
 	};
 	var state = mainStates.initial;
 
@@ -46,8 +52,15 @@ var resume = (function() {
 		case mainStates.initial:
 			init();
 			break;
+		case mainStates.preloading:
+			drawPreload();
+			break;
+		case mainStates.initLoader:
+			initLoader();
+			break;
 		case mainStates.loading:
-			drawload();
+			loader.draw(Math.ceil(loadCount * 100 / itemsToLoad));
+			flip();
 			break;
 		case mainStates.reset:
 			//reset();
@@ -64,35 +77,32 @@ var resume = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function resizeCanvas() {
-		screenWidth = window.innerWidth;
-		screenHeight = window.innerHeight;
-		theCanvas.width = screenWidth;
-		theCanvas.height = screenHeight;
-		backCanvas.width = screenWidth;
-		backCanvas.height = screenHeight;
-	}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Initialization & loader functions
+// Pre-loader subroutines & initialization
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Pre-loader counters
-	var itemsToLoad = 4;
-	var loadCount = 0;
+	var itemsToPreload = 1;
+	var preloadCount = 0;
+
+	// Prepare global variables
+	var env = {
+		mainStates : mainStates,
+		screenWidth : screenWidth,
+		screenHeight : screenHeight
+	};
+
+	// Go to tutorial if the player is first time play the game.
+	var tutorialStart;
 
 	function init() {
 		// Setup image loader events
-		//imgAvatarP.src = "image/AvatarP.png";
-		//imgAvatarP.onload = eventItemLoaded;
-		//imgAvatarN.src = "image/AvatarN.png";
-		//imgAvatarN.onload = eventItemLoaded;
-		//imgBrickP.src = "image/BrickP.png";
-		//imgBrickP.onload = eventItemLoaded;
-		//imgBrickN.src = "image/BrickN.png";
-		//imgBrickN.onload = eventItemLoaded;
+		imgLoadingBar.src = "image/BananaLoader.png";
+		imgLoadingBar.onload = eventItemPreLoaded;
 
 		// Setup canvas
 		theCanvas = document.getElementById("canvas");
@@ -104,19 +114,13 @@ var resume = (function() {
 		backCanvas.height = screenHeight;
 		backContext = backCanvas.getContext("2d");
 
-		// Setup events
-		//window.addEventListener('resize', resizeCanvas, false);
-
 		// Switch to next state
-		state = mainStates.loading;
+		state = mainStates.preloading;
 	}
 
-	function drawload() {
-		// Caculate loader
-		var percentage = Math.round(loadCount / itemsToLoad * 100);
-
+	function drawPreload() {
 		// Clear Background
-		context.fillStyle = "#cedfe7";
+		context.fillStyle = "#ffffff";
 		context.fillRect(0, 0, screenWidth, screenHeight);
 
 		// Print percentage
@@ -124,14 +128,70 @@ var resume = (function() {
 		context.fillStyle = "#000000";
 		context.font = "14px monospace";
 		context.textAlign = "center";
-		context.fillText(percentage + "%", screenWidth / 2, screenHeight / 2);
+		context.fillText("Preparing ...", screenWidth/2, screenHeight/2);
+	}
+
+	function eventItemPreLoaded(e) {
+		preloadCount++;
+		if(preloadCount == itemsToPreload) {
+			state = mainStates.initLoader;
+		}
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Loader subroutines
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	// Loader counters
+	var itemsToLoad = 34;
+	var loadCount = 0;
+
+	function initLoader() {
+		// Setup image loader events
+		imgTitle.src = "image/Title.png";
+		imgTitle.onload = eventItemLoaded;
+		imgButtons.src = "image/Buttons.png";
+		imgButtons.onload = eventItemLoaded;
+		imgFrame.src = "image/Frame.png";
+		imgFrame.onload = eventItemLoaded;
+
+		// Load banana & sunflower images
+		for(var i = 1; i <= 15; i++) {
+			imgBananas[i-1] = new Image();
+			imgBananas[i-1].src = "image/Banana/" + i + ".jpg";
+			imgBananas[i-1].onload = eventItemLoaded;
+			imgFlowers[i-1] = new Image();
+			imgFlowers[i-1].src = "image/Sunflower/" + i + ".jpg";
+			imgFlowers[i-1].onload = eventItemLoaded;
+		}
+
+		// Pass resources to loader
+		loader.init(env, {
+			bar : imgLoadingBar
+		},
+		backContext);
+
+		// Switch to next state
+		state = mainStates.loading;
 	}
 
 	function eventItemLoaded(e) {
 		loadCount++;
 		if(loadCount == itemsToLoad) {
-			//state = mainStates.reset;
+			state = mainStates.loadComplete;
 		}
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// General utilities
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function flip() {
+		context.drawImage(backCanvas, 0, 0);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
