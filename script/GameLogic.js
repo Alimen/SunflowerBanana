@@ -1,6 +1,7 @@
 var gameLogic = (function() {
 	// Environmental variables
 	var backContext;
+	var snd;
 	var img;
 	var env;
 
@@ -13,6 +14,7 @@ var gameLogic = (function() {
 	var score;
 	var answere;  // flower == 0, banana == 1
 	var imgId;
+	var markerT;
 
 	// Game states
 	const gameStates = {
@@ -20,7 +22,8 @@ var gameLogic = (function() {
 		slideIn		: 0,
 		gameplay	: 1,
 		slideOut	: 2,
-		result		: 3
+		result		: 3,
+		backToTitle	: 4
 	}
 	var state;
 
@@ -30,9 +33,10 @@ var gameLogic = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function init(_env, _img, _backContext) {
+	function init(_env, _img, _snd, _backContext) {
 		env = _env;
 		img = _img;
+		snd = _snd;
 		backContext = _backContext;
 	}
 
@@ -44,6 +48,7 @@ var gameLogic = (function() {
 
 		countdown = 30.0;
 		score = 0;
+		markerT = 0;
 		nextImg();
 
 		resetSlide(1);
@@ -73,6 +78,11 @@ var gameLogic = (function() {
 	}
 
 	function eventMouseClick(e) {
+		if(flowerMouse == 1) {
+			checkAnswere(0);
+		} else if(bananaMouse == 1) {
+			checkAnswere(1);
+		}
 	}
 
 	function eventKeyUp(e) {
@@ -134,16 +144,25 @@ var gameLogic = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function checkAnswere(input) {
+		if(state != gameStates.gameplay || markerT != 0) {
+			return;
+		}
+
 		if(input == answere) {
 			score += Math.floor(countdown)*10;
 			countdown += 0.3;
 			if(countdown > 30.0) {
 				countdown = 30.0;
 			}
+			snd.correct.currentTime = 0;
+			snd.correct.play();
+			markerT = 8;
 		} else {
 			countdown -= 0.1;
+			snd.wrong.currentTime = 0;
+			snd.wrong.play();
+			markerT = -8;
 		}
-		nextImg();
 	}
 
 	function nextImg() {
@@ -169,6 +188,7 @@ var gameLogic = (function() {
 		case gameStates.gameplay:
 			countdown -= (1/30);
 			if(countdown < 0) {
+				countdown = 0;
 				resetSlide(-1);
 				state = gameStates.slideOut;
 			}
@@ -198,6 +218,22 @@ var gameLogic = (function() {
 
 		// Draw frame
 		backContext.drawImage(img.frame, 0, slideY);
+
+		// Draw marker
+		if(markerT > 0) {
+			backContext.drawImage(img.answere, 0, 0, 350, 350, 25, 70, 350, 350);
+			markerT--;
+			if(markerT == 0) {
+				nextImg();
+			}
+		}
+		if(markerT < 0) {
+			backContext.drawImage(img.answere, 350, 0, 350, 350, 25, 70, 350, 350);
+			markerT++;
+			if(markerT == 0) {
+				nextImg();
+			}
+		}
 
 		// Draw Buttons
 		if(bananaMouse == 0 && bananaKey == 0) {

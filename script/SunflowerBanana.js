@@ -27,6 +27,9 @@ var resume = (function() {
 	var imgFrame = new Image();
 	var imgAnswere = new Image();
 	var imgLoadingBar = new Image();
+	
+	// Sound components
+	var sndYes, sndNo;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -258,6 +261,9 @@ var resume = (function() {
 		imgAnswere.src = "image/Answere.png";
 		imgAnswere.onload = eventItemLoaded;
 
+		// Setup sound loader events
+		audioLoaderSetup();
+
 		// Load banana & sunflower images
 		for(var i = 1; i <= 15; i++) {
 			imgBananas[i-1] = new Image();
@@ -299,7 +305,10 @@ var resume = (function() {
 			answere : imgAnswere,
 			bananas : imgBananas,
 			flowers : imgFlowers
-		}, backContext);
+		}, {
+			correct : sndYes,
+			wrong : sndNo
+		},backContext);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -310,6 +319,42 @@ var resume = (function() {
 
 	function flip() {
 		context.drawImage(backCanvas, 0, 0);
+	}
+	
+///////////////////////////////////////////////////////////////////////////////
+//
+// Audio utilities
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function audioLoaderSetup() {
+		var audioType;
+
+		sndYes = document.createElement("audio");
+		document.body.appendChild(sndYes);
+		audioType = audioSupportedFormat(sndYes);
+		sndYes.setAttribute("src", "sound/Correct" + audioType);
+		sndYes.addEventListener("canplaythrough", eventItemLoaded, false);
+
+		sndNo = document.createElement("audio");
+		document.body.appendChild(sndNo);
+		sndNo.setAttribute("src", "sound/Wrong" + audioType);
+		sndNo.addEventListener("canplaythrough", eventItemLoaded, false);
+	}
+
+	function audioLoadComplete() {
+		soundResult0.removeEventListener("canplaythrough", eventItemLoaded, false);
+		soundResult1.removeEventListener("canplaythrough", eventItemLoaded, false);
+	}
+
+	function audioSupportedFormat(audio) {
+		var returnExtension = "";
+		if (audio.canPlayType("audio/ogg") =="probably" || audio.canPlayType("audio/ogg") == "maybe") {
+			returnExtension = ".ogg";
+		} else if(audio.canPlayType("audio/mp3") == "probably" || audio.canPlayType("audio/mp3") == "maybe") {	
+			returnExtension = ".mp3";
+		}
+		return returnExtension;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
