@@ -10,11 +10,16 @@ var gameLogic = (function() {
 	var bananaKey, flowerKey;
 
 	// Game variables
+	var mode;  // normal == 0, Chiu Yi == 1
 	var countdown;
 	var score;
 	var answere;  // flower == 0, banana == 1
 	var imgId;
 	var markerT;
+
+	// Result text handles
+	var results = new Array(3);
+	var gameResult;
 
 	// Game states
 	const gameStates = {
@@ -38,17 +43,23 @@ var gameLogic = (function() {
 		img = _img;
 		snd = _snd;
 		backContext = _backContext;
+
+		results[0] = document.getElementById("result0");
+		results[1] = document.getElementById("result1");
+		results[2] = document.getElementById("result2");
 	}
 
-	function reset() {
+	function reset(_mode) {
 		bananaMouse = 0;
 		flowerMouse = 0;
 		bananaKey = 0;
 		flowerKey = 0;
 
+		mode = _mode;
 		countdown = 30.0;
 		score = 0;
 		markerT = 0;
+		gameResult = 0;
 		nextImg();
 
 		resetSlide(1);
@@ -78,21 +89,44 @@ var gameLogic = (function() {
 	}
 
 	function eventMouseClick(e) {
-		if(flowerMouse == 1) {
-			checkAnswere(0);
-		} else if(bananaMouse == 1) {
-			checkAnswere(1);
+		if(state == gameStates.result) {
+			if(flowerMouse == 1) {
+				gameResult = 2;
+				hideResult();
+			} else if(bananaMouse == 1) {
+				gameResult = 1;
+				hideResult();
+			}
+		} else {
+			if(flowerMouse == 1) {
+				checkAnswere(0);
+			} else if(bananaMouse == 1) {
+				checkAnswere(1);
+			}
 		}
 	}
 
 	function eventKeyUp(e) {
-		if(e.keyCode == 37) {
-			checkAnswere(1);
-			bananaKey = 0;
-		}
-		if(e.keyCode == 39) {
-			checkAnswere(0);
-			flowerKey = 0;
+		if(state == gameStates.result) {
+			if(e.keyCode == 37) {
+				gameResult = 1;
+				bananaKey = 0;
+				hideResult();
+			}
+			if(e.keyCode == 39) {
+				gameResult = 2;
+				flowerKey = 0;
+				hideResult();
+			}
+		} else {
+			if(e.keyCode == 37) {
+				checkAnswere(1);
+				bananaKey = 0;
+			}
+			if(e.keyCode == 39) {
+				checkAnswere(0);
+				flowerKey = 0;
+			}
 		}
 	}
 
@@ -130,6 +164,7 @@ var gameLogic = (function() {
 
 		if(slideDirection < 0 && slideY < -470) {
 			slideY = -470;
+			showResult();
 			state = gameStates.result;
 		} else if(slideDirection > 0 && slideY > 0) {
 			slideY = 0;
@@ -148,6 +183,14 @@ var gameLogic = (function() {
 			return;
 		}
 
+		if(mode == 1) {
+			if(input == 0) {
+				input = 1;
+			} else {
+				input = 0;
+			}
+		}
+
 		if(input == answere) {
 			score += Math.floor(countdown)*10;
 			countdown += 0.3;
@@ -158,7 +201,7 @@ var gameLogic = (function() {
 			snd.correct.play();
 			markerT = 8;
 		} else {
-			countdown -= 0.1;
+			countdown -= 1.0;
 			snd.wrong.currentTime = 0;
 			snd.wrong.play();
 			markerT = -8;
@@ -180,6 +223,9 @@ var gameLogic = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 	
+	// Timer
+	var backT;
+
 	function push() {
 		switch(state) {
 		case gameStates.slideIn:
@@ -196,6 +242,9 @@ var gameLogic = (function() {
 		case gameStates.slideOut:
 			pushSlide();
 			break;
+		case gameStates.backToTitle:
+			backT++;
+			break;
 		}
 	}
 
@@ -206,8 +255,25 @@ var gameLogic = (function() {
 		backContext.fillStyle = "#cedfe7";
 		backContext.fillRect(0, 0, env.screenWidth, env.screenHeight);
 
+		// Fade-out to title
+		if(state == gameStates.backToTitle) {
+			var res = drawTitle();
+			return res;
+		}
+
 		// Draw title
-		backContext.drawImage(img.title, 0, 40);
+		if(state == gameStates.slideIn) {
+			backContext.drawImage(img.title, 0, 40);
+		}
+
+		// Draw final score
+		backContext.textBaseline = "bottom";	
+		backContext.fillStyle = "#000000";
+		backContext.font = "bold 64px Arial";
+		if(state == gameStates.result) {
+			backContext.textAlign = "center";
+			backContext.fillText(score, 200, 180);
+		}
 
 		// Draw image
 		if(answere == 0) {
@@ -235,7 +301,33 @@ var gameLogic = (function() {
 			}
 		}
 
-		// Draw Buttons
+		// Draw buttons
+		if(state == gameStates.result) {
+			drawResultButtons();
+		} else {
+			drawButtons();
+		}
+
+		// Draw mode
+		if(mode == 1) {
+			backContext.drawImage(img.mode, 0, 0, 80, 80, 235, slideY, 60, 60);
+		}
+
+		// Draw timer & score
+		backContext.font = "bold 24px Arial";
+		backContext.textAlign = "right";
+		backContext.fillText(padLeft(score, 6), 380, 28+slideY);
+		if(countdown < 5) {
+			backContext.fillStyle = "#ff0000";
+		}
+		backContext.font = "bold 62px Arial";
+		backContext.textAlign = "left";
+		backContext.fillText(countdown.toFixed(1), 20, 65+slideY);
+
+		return 0;
+	}
+
+	function drawButtons() {
 		if(bananaMouse == 0 && bananaKey == 0) {
 			backContext.drawImage(img.buttons, 0, 0, 200, 130, 0, 470, 200, 130);
 		} else {
@@ -246,19 +338,19 @@ var gameLogic = (function() {
 		} else {
 			backContext.drawImage(img.buttons, 200, 130, 200, 130, 200, 470, 200, 130);
 		}
+	}
 
-		// Draw timer & score
-		backContext.textBaseline = "bottom";	
-		backContext.fillStyle = "#000000";
-		backContext.font = "bold 24px Arial";
-		backContext.textAlign = "right";
-		backContext.fillText(padLeft(score, 6), 380, 28+slideY);
-		if(countdown < 5) {
-			backContext.fillStyle = "#ff0000";
+	function drawResultButtons() {
+		if(bananaMouse == 0 && bananaKey == 0) {
+			backContext.drawImage(img.buttons, 0, 520, 200, 130, 0, 470, 200, 130);
+		} else {
+			backContext.drawImage(img.buttons, 200, 520, 200, 130, 0, 470, 200, 130);
 		}
-		backContext.font = "bold 62px Arial";
-		backContext.textAlign = "left";
-		backContext.fillText(countdown.toFixed(1), 20, 65+slideY);
+		if(flowerMouse == 0 && flowerKey == 0) {
+			backContext.drawImage(img.buttons, 0, 650, 200, 130, 200, 470, 200, 130);
+		} else {
+			backContext.drawImage(img.buttons, 200, 650, 200, 130, 200, 470, 200, 130);
+		}
 	}
 
 	function padLeft(str, len) {
@@ -266,6 +358,38 @@ var gameLogic = (function() {
 			return str;
 		} else {
 			return padLeft("0"+str, len);
+		}
+	}
+
+	function showResult() {
+		if(score <= 2000) {
+			results[0].style.visibility="";
+		} else if(score <= 4000) {
+			results[1].style.visibility="";
+		} else {
+			results[2].style.visibility="";
+		}
+	}
+
+	function hideResult() {
+		results[0].style.visibility="hidden";
+		results[1].style.visibility="hidden";
+		results[2].style.visibility="hidden";
+		backT = 0;
+		state = gameStates.backToTitle;
+	}
+
+	function drawTitle() {
+		backContext.globalAlpha = backT/40;
+		backContext.drawImage(img.title, 0, 40);
+		backContext.drawImage(img.buttons, 0, 390, 200, 130, 0, 470, 200, 130);
+		backContext.drawImage(img.buttons, 0, 260, 200, 130, 200, 470, 200, 130);
+		backContext.globalAlpha = 1;
+
+		if(backT == 40) {
+			return gameResult;
+		} else {
+			return 0;
 		}
 	}
 

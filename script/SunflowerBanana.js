@@ -25,6 +25,7 @@ var resume = (function() {
 	var imgTitle = new Image();
 	var imgButtons = new Image();
 	var imgFrame = new Image();
+	var imgMode = new Image();
 	var imgAnswere = new Image();
 	var imgLoadingBar = new Image();
 	
@@ -50,6 +51,7 @@ var resume = (function() {
 		game		: 9
 	};
 	var state = mainStates.initial;
+	var mode;
 
 	function timerTick() {
 		var res;
@@ -96,12 +98,19 @@ var resume = (function() {
 			}
 			break;
 		case mainStates.resetGame:
-			gameLogic.reset();
+			gameLogic.reset(mode);
 			state = mainStates.game;
 			break;
 		case mainStates.game:
-			gameLogic.draw();
+			res = gameLogic.draw();
 			flip();
+			if(res == 1) {
+				mode = 0;
+				state = mainStates.resetTitle;
+			} else if(res == 2) {
+				mode = 1;
+				state = mainStates.resetTitle;
+			}
 			break;
 		}
 	}
@@ -192,10 +201,12 @@ var resume = (function() {
 		screenHeight : screenHeight
 	};
 
-	// Go to tutorial if the player is first time play the game.
-	var tutorialStart;
-
 	function init() {
+		// Hide result texts
+		document.getElementById("result0").style.visibility = "hidden";
+		document.getElementById("result1").style.visibility = "hidden";
+		document.getElementById("result2").style.visibility = "hidden";
+
 		// Setup image loader events
 		imgLoadingBar.src = "image/BananaLoader.png";
 		imgLoadingBar.onload = eventItemPreLoaded;
@@ -247,7 +258,7 @@ var resume = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 34;
+	var itemsToLoad = 35;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -258,6 +269,8 @@ var resume = (function() {
 		imgButtons.onload = eventItemLoaded;
 		imgFrame.src = "image/Frame.png";
 		imgFrame.onload = eventItemLoaded;
+		imgMode.src = "image/Mode.png";
+		imgMode.onload = eventItemLoaded;
 		imgAnswere.src = "image/Answere.png";
 		imgAnswere.onload = eventItemLoaded;
 
@@ -302,6 +315,7 @@ var resume = (function() {
 			buttons : imgButtons,
 			title : imgTitle,
 			frame : imgFrame,
+			mode : imgMode,
 			answere : imgAnswere,
 			bananas : imgBananas,
 			flowers : imgFlowers

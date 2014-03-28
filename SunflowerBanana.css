@@ -1,0 +1,22 @@
+body {
+	font-family: sans-serif,"微軟正黑體","新細明體";
+	text-align: center;
+}
+
+.result {
+	position: absolute;
+	font-size: 18px;
+	width: 400px;
+	top: 180px;
+	left: 50%;
+	margin: 0 -200px;
+	text-align: center;
+}
+
+.description {
+	width: 310px;
+	margin: 0 auto;
+	text-align: left;
+	display: block;
+	float: none;
+}

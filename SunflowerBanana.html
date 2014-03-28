@@ -2,8 +2,10 @@
 <html lang="zh-tw">
 <head>
 	<meta charset="UTF-8">
-	<style>
-		p {font-family:sans-serif,"微軟正黑體","新細明體";}
+	<style type="text/css">
+	<!--
+		@import url(SunflowerBanana.css);
+	--> 
 	</style>
 	<title>Sunflower or Banana</title>
 	<script type="text/javascript" src="script/GameLogic.js"></script>
@@ -11,19 +13,51 @@
 	<script type="text/javascript" src="script/Loader.js"></script>
 	<script type="text/javascript" src="script/SunflowerBanana.js"></script>
 </head>
-<body style="text-align:center;">
-	<p><br>Sunflower OR Banana<br></p>
-	<div>
+<body>
+	<br>Sunflower OR Banana<br><br>
+	<div style="position:relative;">
 		<canvas id="canvas" width="400px" height="600px">
 			Your browser does not support HTML5 Canvas.
 		</canvas>
+		<div id="result0" class="result">
+			Rank: 0 ～ 2000<br>
+			 <br>
+			對你來說，<br>
+			是香蕉或是太陽花，<br>
+			早已不是重點。<br>
+			 <br>
+			重要的是，
+			我們能不能看清問題的本質？
+			 <br>	
+			<a href="http://billy3321.github.io/tisa2/" target="_blink">什麼是「兩岸服務業貿易協議」？</a>
+		</div>
+		<div id="result1" class="result">
+			Rank: 2000 ～ 4000<br>
+			 <br>
+			你很清楚什麼是香蕉、<br>
+			什麼是太陽花，<br>
+			只是有時難免模糊了焦點。<br>
+			 <br>
+			讓我們再回到議題一次吧？<br>
+			 <br>
+			<a href="http://g0v.today/congressoccupied/http%253A%252F%252Fnewday.tw%252Fintro%252F" target="_blink">讓晨曦照亮民主</a>
+		</div>
+		<div id="result2" class="result">
+			Rank: 4000+<br>
+			 <br>
+			明察秋毫、黑白分明，<br>
+			這樣優秀的你，<br>
+			社會正需要你的聲音！<br>
+			 <br>
+			<a href="https://www.facebook.com/lslandnationyouth/posts/244844839032103?stream_ref=10" target="_blink">捍衛民主、退回服貿、人民站出來！</a>
+		</div>
 	</div>
-	<div style="width:310px; margin:0 auto; text-align:left; display:block; float:none"><p>
-			<b>HOW TO PLAY</b><br>
-		如果出現向日葵，請按下「右方向鍵」；<br>
+	<div class="description">
+		<br><b>HOW TO PLAY</b><br>
+		如果出現太陽花，請按下「右方向鍵」；<br>
 		如果出現的是香蕉，請按下「左方向鍵」。<br>
 		限制時間內答對越多分數越高！<br>
-	</p></div>
+	</div>
 
 </body>
 </html>
